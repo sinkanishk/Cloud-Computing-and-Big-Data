@@ -183,14 +183,14 @@ def lambda_handler(event, context):
         message = receive_sqs_message(queue_url)
         if message is None:
             print("No Message in the Queue right-NOW")
-            return
+            break
         
         cuisine, location, date, time, numOfPeople, email = retrieve_message_info(message)
         business_ids = find_restaurant_from_elasticsearch(cuisine)
         message_to_send = build_message_to_send(cuisine, location, numOfPeople, date, time, business_ids)
         send_email_recommendation(email, message_to_send)
     
-    return message_to_send
+    return 
     
     
     
