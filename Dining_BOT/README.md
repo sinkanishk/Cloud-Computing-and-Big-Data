@@ -1,8 +1,12 @@
 # Chatbot Concierge #
 
+# Team-Members #
+- Kanishk Singh (ks4038)
+- Uttam Gurram (ug2146)
+
 ## About ##
 
-Frontend starter repository for HW 1 of the Cloud Computing & Big Data
+HW 1 of the Cloud Computing & Big Data
 class at Columbia University and New York University.
 
 ## Usage ##
@@ -13,3 +17,6 @@ class at Columbia University and New York University.
 3. Open `chat.html` in any browser.
 4. Start sending messages to test the chatbot interaction.
 
+- Frontend-Application Link : [http://diningconciergeccbd.s3-website-us-east-1.amazonaws.com]
+  
+  
