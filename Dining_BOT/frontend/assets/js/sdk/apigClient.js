@@ -13,8 +13,22 @@
  * permissions and limitations under the License.
  */
 
+// Taken from StackOverflow
+function genID(length) {
+    let result = '';
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    const charactersLength = characters.length;
+    let counter = 0;
+    while (counter < length) {
+      result += characters.charAt(Math.floor(Math.random() * charactersLength));
+      counter += 1;
+    }
+    return result;
+}
+
 var apigClientFactory = {};
 apigClientFactory.newClient = function (config) {
+    window.sessionStorage.setItem('sessionID', genID(24))
     var apigClient = { };
     if(config === undefined) {
         config = {
