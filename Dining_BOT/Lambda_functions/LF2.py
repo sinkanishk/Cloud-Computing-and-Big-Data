@@ -137,7 +137,7 @@ def build_message_to_send(cuisine, location, numOfPeople, date, time, b_IDS):
     """
     # message_to_send = ascii_art()
     # message_to_send += "\n"
-    message_to_send += f'Hello! Here are my {cuisine} restaurant suggestions in {location} for {numOfPeople} people, for {date} at {time}:\n'
+    message_to_send = f'Hello! Here are my {cuisine} restaurant suggestions in {location} for {numOfPeople} people, for {date} at {time}:\n'
     
     # Fetch restaurant information for the given business IDs
     restaurant_info = fetch_restaurant_info(b_IDS, max_results=5)
