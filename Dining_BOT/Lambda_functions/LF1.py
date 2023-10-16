@@ -194,7 +194,7 @@ def validate_slot_values(slots):
     response['isValid'] = True
     return slots, response
 
-def sqs_message_sender(slots):
+def sqs_message_sender(slots, sessionID):
     sqs = boto3.client('sqs')
     queue_url = 'https://sqs.us-east-1.amazonaws.com/541457746749/DiningQueue'
 
@@ -204,6 +204,11 @@ def sqs_message_sender(slots):
             'DataType': 'String',
             'StringValue': slots[k]['value']['interpretedValue']
         }
+
+    msg_attributes['sessionID'] = {
+        'DataType': 'String',
+        'StringValue': sessionID
+    }
 
     response = sqs.send_message(
         QueueUrl = queue_url,
@@ -299,6 +304,6 @@ def lambda_handler(event, context):
             'content': 'Great. The registration details will be sent to your email shortly.'
         }]
 
-        sqs_message_sender(slots)   
+        sqs_message_sender(slots, event['sessionId'])   
     
     return resp

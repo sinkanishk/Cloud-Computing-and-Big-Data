@@ -102,7 +102,8 @@ def retrieve_message_info(message):
         time = message["MessageAttributes"]["DiningTime"]["StringValue"]
         numOfPeople = message["MessageAttributes"]["NumberOfPeople"]["StringValue"]
         email = message["MessageAttributes"]["Email"]["StringValue"]
-        return cuisine, location, date, time, numOfPeople, email
+        sessionID = message["MessageAttributes"]["sessionID"]["StringValue"]
+        return cuisine, location, date, time, numOfPeople, email, sessionID
     except KeyError:
         print("Invalid message format. Missing required keys.")
         return None, None, None, None, None, None
@@ -131,25 +132,34 @@ def fetch_restaurant_info(business_ids, max_results=5):
 
     return restaurant_info
 
-def build_message_to_send(cuisine, location, numOfPeople, date, time, b_IDS):
+def build_message_to_send(cuisine, location, numOfPeople, date, time, sessionID, b_IDS):
     """
     Build the message to send based on retrieved information and Elasticsearch results.
     """
-    # message_to_send = ascii_art()
-    # message_to_send += "\n"
     message_to_send = f'Hello! Here are my {cuisine} restaurant suggestions in {location} for {numOfPeople} people, for {date} at {time}:\n'
     
     # Fetch restaurant information for the given business IDs
     restaurant_info = fetch_restaurant_info(b_IDS, max_results=5)
+    restaurant_recommend_msg = f'{cuisine} restaurants\n'
     
     if restaurant_info:
         for i, info in enumerate(restaurant_info, start=1):
             name = info.get('name', 'Unknown Restaurant')
             address = info.get('address', 'Unknown Address')
+            restaurant_recommend_msg += f'{i}. {name}, located at {address}.\n'
             message_to_send += f'{i}. {name}, located at {address}.\n'
     else:
         message_to_send += 'No restaurants found for the provided cuisine.\n'
     
+    if sessionID != 'invalid':
+        dynamodb = boto3.resource('dynamodb')
+        table = dynamodb.Table('UserRecommendation')
+        item = {
+            'sessionID': sessionID,
+            'recommend': restaurant_recommend_msg,
+        }
+        response = table.put_item(Item=item)
+
     message_to_send += 'Enjoy your meal!!'
     return message_to_send
 
@@ -185,12 +195,9 @@ def lambda_handler(event, context):
             print("No Message in the Queue right-NOW")
             break
         
-        cuisine, location, date, time, numOfPeople, email = retrieve_message_info(message)
+        cuisine, location, date, time, numOfPeople, email, sessionID = retrieve_message_info(message)
         business_ids = find_restaurant_from_elasticsearch(cuisine)
-        message_to_send = build_message_to_send(cuisine, location, numOfPeople, date, time, business_ids)
+        message_to_send = build_message_to_send(cuisine, location, numOfPeople, date, time, sessionID, business_ids)
         send_email_recommendation(email, message_to_send)
     
-    return 
-    
-    
-    
+    return

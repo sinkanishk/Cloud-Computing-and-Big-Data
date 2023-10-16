@@ -8,8 +8,11 @@ def lambda_handler(event, context):
 
     # msg_from_user = event['messages'][0]
     print(event)
-    print(context)
     msg_from_user = event['messages'][0]['unstructured']['text']
+    try:
+        sessionID = event['sessionID']
+    except:
+        sessionID = 'invalid'
 
     # change this to the message that user submits on 
     # your website using the 'event' variable
@@ -22,9 +25,11 @@ def lambda_handler(event, context):
             botId='TXPGIDFUDQ', # MODIFY HERE
             botAliasId='NUBTECELJV', # MODIFY HERE
             localeId='en_US',
-            sessionId='testuser',
+            sessionId=sessionID,
             text=msg_from_user)
     
+    print(response)
+
     msg_from_lex = response.get('messages', [])
     if msg_from_lex:
         messages = []
@@ -38,6 +43,31 @@ def lambda_handler(event, context):
                 }
             })
 
+        if response['sessionState']['intent']['name'] == 'GreetingIntent' and sessionID != 'invalid':
+            try:
+                dynamodb = boto3.resource('dynamodb')
+                table = dynamodb.Table('UserRecommendation')
+                response = table.get_item(Key={'sessionID': sessionID})
+                item = response.get('Item')
+                recommend_msg = item.get('recommend', 'No recommendations')
+                print(f"Message: {recommend_msg}")
+                messages.append({
+                    'type': 'unstructured',
+                    'unstructured': {
+                        'text': 'By the way, here are some recommendations based on your previous search'
+                    }
+                })
+                recommend_msgs = recommend_msg.split('\n')
+                for msg in recommend_msgs:
+                    messages.append({
+                        'type': 'unstructured',
+                        'unstructured': {
+                            'text': msg
+                        }
+                    })
+            except:
+                pass
+        
         resp = {
             'statusCode': 200,
             'messages': messages
@@ -50,4 +80,3 @@ def lambda_handler(event, context):
         # to the S3 bucket
 
         return resp
-
