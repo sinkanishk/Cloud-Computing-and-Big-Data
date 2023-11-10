@@ -9,3 +9,6 @@
 
 # CHATBOT-APPLICATION LINK:
 - UI LINK  [http://diningconciergeccbd.s3-website-us-east-1.amazonaws.com]
+
+# GITHUB-REPO LINK:
+- [https://github.com/sinkanishk/Cloud-Computing-and-Big-Data/tree/main/Dining_BOT]
