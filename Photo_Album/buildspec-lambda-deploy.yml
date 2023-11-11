@@ -2,7 +2,6 @@ version: 0.2
 phases:
   build:
     commands:
-      - cd Photo_Album
       - echo "Updating lf1 Function..."
       - aws lambda update-function-code --function-name lf1 --zip-file fileb://lf1_package.zip
       - echo "DONE!!"
