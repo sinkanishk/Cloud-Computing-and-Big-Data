@@ -1,0 +1,8 @@
+version: 0.2
+phases:
+  build:
+    commands:
+      - echo "Updating files in S3..."
+      - unzip frontend_package.zip
+      - aws s3 cp frontend_package/ s3://myphotoalbumccbd/ --recursive
+      - echo "DONE!!"
