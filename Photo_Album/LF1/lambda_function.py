@@ -73,6 +73,7 @@ def upload_to_es(object, id):
 
 
 def lambda_handler(event, context):
+    print("Verify the branch work")
     # Triggered when an image is uploaded to the S3 bucket
     try:
         bucket_name = event['Records'][0]['s3']['bucket']['name']
