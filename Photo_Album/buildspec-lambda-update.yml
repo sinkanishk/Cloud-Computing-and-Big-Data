@@ -1,0 +1,24 @@
+version: 0.2
+phases:
+  install:
+    runtime-versions:
+      python: 3.8
+    commands:
+      - cd Photo_Album
+      - echo "Installing dependencies..."
+      - pip install -r requirements.txt -t lib
+      - cd ..
+  build:
+    commands:
+      - cd Photo_Album
+      - echo "Zipping lf1 package..."
+      - cd lib
+      - zip -r9 ../lf1_package.zip .
+      - cd ..
+      - zip -g lf1_package.zip lf1.py
+      - echo "Zipping lf2 package..."
+      - cd lib
+      - zip -r9 ../lf2_package.zip .
+      - cd ..
+      - zip -g lf2_package.zip lf2.py
+      - cd ..

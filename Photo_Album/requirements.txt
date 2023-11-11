@@ -1,0 +1,8 @@
+requests
+certifi
+charset-normalizer
+idna
+opensearch-py
+requests-aws4auth
+six
+urllib3
