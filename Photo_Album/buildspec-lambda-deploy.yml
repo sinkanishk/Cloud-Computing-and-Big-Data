@@ -8,4 +8,3 @@ phases:
       - echo "Updating LF2 Function..."
       - aws lambda update-function-code --function-name LF2 --zip-file fileb://LF2_package.zip
       - echo "DONE!!"
-      - cd ..
