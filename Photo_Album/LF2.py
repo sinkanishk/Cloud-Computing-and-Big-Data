@@ -34,7 +34,7 @@ def print_dict_recursive(d, parent_keys="", indent=0):
             print("  " * indent + f"{current_key}: {value}")
 
 def lambda_handler(event, context):
-
+    print("Verifying that the code changes are built and deployed")
     print('event : ', event)
     
     query = event["queryStringParameters"]['q']
