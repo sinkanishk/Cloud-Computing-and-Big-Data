@@ -1,21 +1,13 @@
 import json
-import math
-import dateutil.parser
-import datetime
-import time
-import os
 import logging
 import boto3
 import requests
-import urllib.parse
 from requests_aws4auth import AWS4Auth
-from elasticsearch import Elasticsearch, RequestsHttpConnection
-    
+
+
 logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)
 client = boto3.client('lexv2-runtime')
-from opensearchpy import OpenSearch, RequestsHttpConnection
-
 
 
 """
