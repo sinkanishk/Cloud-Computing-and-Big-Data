@@ -18,6 +18,6 @@ phases:
       - zip -r9 ../lf2_package.zip .
       - cd ..
       - zip -g lf2_package.zip Photo_Album/lf2.py
-  artifacts:
-    files:
-      - '**/*'
+artifacts:
+  files:
+    - '**/*'
