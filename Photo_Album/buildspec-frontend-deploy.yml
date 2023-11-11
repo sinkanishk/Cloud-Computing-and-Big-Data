@@ -3,6 +3,6 @@ phases:
   build:
     commands:
       - echo "Updating files in S3..."
-      - unzip frontend_package.zip
-      - aws s3 cp frontend_package/ s3://myphotoalbumccbd/ --recursive
+      - unzip frontend_package.zip -d ./temp/
+      - aws s3 cp ./temp/ s3://myphotoalbumccbd/ --recursive
       - echo "DONE!!"
