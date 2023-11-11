@@ -13,12 +13,16 @@ phases:
       - cd lib
       - zip -r9 ../../LF1_package.zip .
       - cd ..
-      - zip -g ../LF1_package.zip LF1/lambda_function.py
+      - cd LF1
+      - zip -g ../LF1_package.zip lambda_function.py
+      - cd ..
       - echo "Zipping LF2 package..."
       - cd lib
       - zip -r9 ../../LF2_package.zip .
       - cd ..
-      - zip -g ../LF2_package.zip LF2/lambda_function.py
+      - cd LF2
+      - zip -g ../LF2_package.zip lambda_function.py
+      - cd ..
       - cd ..
 artifacts:
   files:
