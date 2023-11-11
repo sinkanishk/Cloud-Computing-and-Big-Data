@@ -2,7 +2,7 @@ const API_BASE_URL = 'https://cdip9yzyig.execute-api.us-east-1.amazonaws.com/dep
 const SEARCH_ENDPOINT = '/search';
 const UPLOAD_ENDPOINT = '/upload/b2store/';
 
-// Verifying if the CodePipeline P2 is working 
+// CodePipeline P2 works 
 
 // Variables for accessing the API Gateway endpoints
 // const API_BASE_URL = 'https://pktf9voz2i.execute-api.us-east-1.amazonaws.com/Prod';
