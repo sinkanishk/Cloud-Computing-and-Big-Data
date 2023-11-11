@@ -9,7 +9,6 @@ phases:
       - pip install -r requirements.txt -t lib
   build:
     commands:
-      - cd Photo_Album
       - echo "Zipping lf1 package..."
       - cd lib
       - zip -r9 ../../lf1_package.zip .
