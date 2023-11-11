@@ -2,10 +2,10 @@ version: 0.2
 phases:
   build:
     commands:
-      - echo "Updating lf1 Function..."
-      - aws lambda update-function-code --function-name lf1 --zip-file fileb://lf1_package.zip
+      - echo "Updating LF1 Function..."
+      - aws lambda update-function-code --function-name LF1 --zip-file fileb://LF1_package.zip
       - echo "DONE!!"
-      - echo "Updating lf2 Function..."
-      - aws lambda update-function-code --function-name lf2 --zip-file fileb://lf2_package.zip
+      - echo "Updating LF2 Function..."
+      - aws lambda update-function-code --function-name LF2 --zip-file fileb://LF2_package.zip
       - echo "DONE!!"
       - cd ..
