@@ -20,8 +20,6 @@ phases:
       - cd ..
       - zip -g ../lf2_package.zip lf2.py
       - cd ..
-      - view lf1_package.zip
-      - view lf2_package.zip
 artifacts:
   files:
     - '**/*'
