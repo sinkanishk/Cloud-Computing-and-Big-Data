@@ -1,0 +1,486 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description : AWS CloudFormation template for Photo Album.
+Parameters:
+  BackendBucketName:
+    Type: String
+    Default: b2store-cf
+  OpenSearchName:
+    Type: String
+    Default: photos-cf
+  BotID:
+    Type: String
+    Default: LJGCOGG2PT
+  BotAliasID:
+    Type: String
+    Default: DG4979SPPU
+  StageName:
+    Type: String
+    Default: deploycf
+Resources:
+  # OpenSearch is done, but only create at the end
+  # OpenSearchStorage:
+  #   Type: AWS::OpenSearchService::Domain
+  #   Properties:
+  #     DomainName: !Ref OpenSearchName
+  #     AccessPolicies:
+  #       Version: "2012-10-17"
+  #       Statement:
+  #         - Effect: "Allow"
+  #           Principal:
+  #             AWS: "*"
+  #           Action: "es:*"
+  #           Resource: "arn:aws:es:us-east-1:373948311114:domain/photos-cf/*"
+  #     ClusterConfig:
+  #       InstanceCount: 1
+  #       InstanceType: t3.small.search
+  #     EBSOptions:
+  #       EBSEnabled: true
+  #       VolumeSize: 10
+  #       VolumeType: gp3
+  #       Iops: 3000
+  #     NodeToNodeEncryptionOptions:
+  #       Enabled: true
+  #     AdvancedSecurityOptions:
+  #       Enabled: true
+  #       InternalUserDatabaseEnabled: false
+  #       MasterUserOptions:
+  #         MasterUserARN: 
+  #           - !Join ['', ['arn:aws:iam::373948311114:role/service-role/', !Ref LF1cfFunctionRole]]
+  #           - !Join ['', ['arn:aws:iam::373948311114:role/service-role/', !Ref LF2cfFunctionRole]]
+  #     EncryptionAtRestOptions:
+  #       Enabled: true
+  #     DomainEndpointOptions:
+  #       EnforceHTTPS: true
+
+  FrontEndBucket:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      BucketName: myphotoalbumccbd-cf
+      # AccessControl: PublicRead
+      PublicAccessBlockConfiguration:
+          BlockPublicAcls: false
+          BlockPublicPolicy: false
+          IgnorePublicAcls: false
+          RestrictPublicBuckets: false
+      OwnershipControls:
+        Rules:
+          - ObjectOwnership: ObjectWriter
+      WebsiteConfiguration:
+        IndexDocument: index.html
+
+  FrontEndBucketPolicy:
+    Type: 'AWS::S3::BucketPolicy'
+    Properties:
+      Bucket: !Ref FrontEndBucket
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Sid: PublicReadForGetBucketObjects
+            Effect: Allow
+            Principal: '*'
+            Action: 's3:GetObject'
+            Resource: 
+              - !Join ['', ['arn:aws:s3:::', !Ref FrontEndBucket, '/*']]
+
+  BackEndBucket:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      BucketName: !Ref BackendBucketName
+      NotificationConfiguration:
+        LambdaConfigurations:
+          - Event: 's3:ObjectCreated:*'
+            Function: !GetAtt LF1cfFunction.Arn
+
+  LF1cfFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Handler: lambda_function.lambda_handler
+      Role: !GetAtt LF1cfFunctionRole.Arn
+      FunctionName: LF1cf
+      Runtime: python3.11
+      Timeout: 30
+      Code:
+        S3Bucket: lambdas-cf
+        S3Key: LF1.zip
+
+  LF1cfInvokeLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref LF1cfFunction
+      Principal: s3.amazonaws.com
+      SourceArn: !Sub arn:aws:s3:::${BackendBucketName}
+
+  LF1cfFunctionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: LF1cfExecutionRole
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: LF1cfAccess
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:*
+                  - "logs:CreateLogGroup"
+                  - "logs:CreateLogStream"
+                  - "logs:PutLogEvents"
+                  - "rekognition:*"
+                  - 'es:*'
+                Resource: "*"    
+
+  LF2cfFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Handler: lambda_function.lambda_handler
+      Role: !GetAtt LF2cfFunctionRole.Arn
+      FunctionName: LF2cf
+      Runtime: python3.11
+      Timeout: 30
+      Code:
+        S3Bucket: lambdas-cf
+        S3Key: LF2.zip
+
+  LF2cfInvokeLexLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref LF2cfFunction
+      Principal: lex.amazonaws.com
+      SourceArn: !Sub "arn:aws:lex:us-east-1:373948311114:bot/searchObjects/${BotID}/${BotAliasID}"
+
+  LF2cfFunctionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: LF2cfExecutionRole
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: LF2cfAccess
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:*
+                  - "logs:CreateLogGroup"
+                  - "logs:CreateLogStream"
+                  - "logs:PutLogEvents"
+                  - "rekognition:*"
+                  - "es:*"
+                  - "osis:*"
+                  - "lex:*"
+                Resource: "*"
+
+  RestApiCFRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: APIGatewaycfExecutionRole
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: apigateway.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: APIGatewaycfExecutionPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:DescribeLogGroups
+                  - logs:DescribeLogStreams
+                  - logs:PutLogEvents
+                  - logs:GetLogEvents
+                  - logs:FilterLogEvents
+                  - s3:*
+                  - s3-object-lambda:*
+                Resource: "*"
+
+  RestApiCF:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      ApiKeySourceType: HEADER
+      Body: 
+        swagger: "2.0"
+        info:
+          description: "AI Photo Search application, built during the Cloud and Big Data course\
+            \ at Columbia University."
+          version: "1.0.0"
+          title: "AI Photo Search CF with UP"
+        host: "cdip9yzyig.execute-api.us-east-1.amazonaws.com"
+        basePath: "/v1cf"
+        schemes:
+        - "https"
+        paths:
+          /search:
+            get:
+              operationId: "searchPhotos"
+              produces:
+              - "application/json"
+              parameters:
+              - name: "q"
+                in: "query"
+                required: true
+                type: "string"
+              responses:
+                "200":
+                  description: "200 response"
+                  schema:
+                    $ref: "#/definitions/SearchResponse"
+                  headers:
+                    Access-Control-Allow-Origin:
+                      type: "string"
+                    Access-Control-Allow-Methods:
+                      type: "string"
+                    Access-Control-Allow-Headers:
+                      type: "string"
+                "500":
+                  description: "500 response"
+                  schema:
+                    $ref: "#/definitions/Error"
+                "403":
+                  description: "403 response"
+                  schema:
+                    $ref: "#/definitions/Error"
+              security:
+              - api_key: []
+              x-amazon-apigateway-integration:
+                httpMethod: "POST"
+                uri: "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:373948311114:function:LF2cf/invocations"
+                responses:
+                  default:
+                    statusCode: "200"
+                passthroughBehavior: "when_no_match"
+                type: "aws_proxy"
+            options:
+              consumes:
+              - "application/json"
+              responses:
+                "200":
+                  description: "200 response"
+                  headers:
+                    Access-Control-Allow-Origin:
+                      type: "string"
+                    Access-Control-Allow-Methods:
+                      type: "string"
+                    Access-Control-Allow-Headers:
+                      type: "string"
+              x-amazon-apigateway-integration:
+                responses:
+                  default:
+                    statusCode: "200"
+                    responseParameters:
+                      method.response.header.Access-Control-Allow-Methods: "'GET,OPTIONS'"
+                      method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+                      method.response.header.Access-Control-Allow-Origin: "'*'"
+                requestTemplates:
+                  application/json: "{\"statusCode\": 200}"
+                passthroughBehavior: "when_no_match"
+                type: "mock"
+          /upload/{bucket}/{filename}:
+            put:
+              operationId: "uploadPhoto"
+              produces:
+              - "application/json"
+              parameters:
+              - name: "filename"
+                in: "path"
+                required: true
+                type: "string"
+              - name: "bucket"
+                in: "path"
+                required: true
+                type: "string"
+              - name: "x-amz-meta-customLabels"
+                in: "header"
+                required: false
+                type: "string"
+              responses:
+                "200":
+                  description: "200 response"
+                  schema:
+                    $ref: "#/definitions/MODEL175339"
+                  headers:
+                    Access-Control-Allow-Origin:
+                      type: "string"
+                    Access-Control-Allow-Methods:
+                      type: "string"
+                    Access-Control-Allow-Headers:
+                      type: "string"
+                "500":
+                  description: "500 response"
+                  schema:
+                    $ref: "#/definitions/Error"
+                "403":
+                  description: "403 response"
+                  schema:
+                    $ref: "#/definitions/Error"
+              security:
+              - api_key: []
+              x-amazon-apigateway-integration:
+                credentials: !Join ['', ['arn:aws:iam::373948311114:role/', !Ref RestApiCFRole]]
+                httpMethod: "PUT"
+                uri: "arn:aws:apigateway:us-east-1:s3:path/{bucket}/{filename}"
+                responses:
+                  default:
+                    statusCode: "200"
+                    responseParameters:
+                      method.response.header.Access-Control-Allow-Origin: "'*'"
+                      method.response.header.Access-Control-Allow-Headers: "'*'"
+                      method.response.header.Access-Control-Allow-Methods: "'*'"
+                requestParameters:
+                  integration.request.path.filename: "method.request.path.filename"
+                  integration.request.header.x-amz-meta-customLabels: "method.request.header.x-amz-meta-customLabels"
+                  integration.request.path.bucket: "method.request.path.bucket"
+                passthroughBehavior: "when_no_match"
+                cacheNamespace: "k097lx"
+                cacheKeyParameters:
+                - "integration.request.header.x-amz-meta-customLabels"
+                type: "aws"
+            options:
+              consumes:
+              - "application/json"
+              parameters:
+              - name: "bucket"
+                in: "path"
+                required: true
+                type: "string"
+              - name: "filename"
+                in: "path"
+                required: true
+                type: "string"
+              responses:
+                "200":
+                  description: "200 response"
+                  headers:
+                    Access-Control-Allow-Origin:
+                      type: "string"
+                    Access-Control-Allow-Methods:
+                      type: "string"
+                    Access-Control-Allow-Headers:
+                      type: "string"
+              x-amazon-apigateway-integration:
+                responses:
+                  default:
+                    statusCode: "200"
+                    responseParameters:
+                      method.response.header.Access-Control-Allow-Methods: "'OPTIONS,PUT'"
+                      method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+                      method.response.header.Access-Control-Allow-Origin: "'*'"
+                requestTemplates:
+                  application/json: "{\"statusCode\": 200}"
+                passthroughBehavior: "when_no_match"
+                type: "mock"
+        securityDefinitions:
+          api_key:
+            type: "apiKey"
+            name: "x-api-key"
+            in: "header"
+        definitions:
+          Error:
+            type: "object"
+            properties:
+              code:
+                type: "integer"
+                format: "int32"
+              message:
+                type: "string"
+          MODEL175339:
+            type: "object"
+          Photo:
+            type: "object"
+            properties:
+              url:
+                type: "string"
+              labels:
+                type: "array"
+                items:
+                  type: "string"
+          SearchResponse:
+            type: "object"
+            properties:
+              results:
+                type: "array"
+                items:
+                  $ref: "#/definitions/Photo"
+        x-amazon-apigateway-gateway-responses:
+          DEFAULT_5XX:
+            responseParameters:
+              gatewayresponse.header.Access-Control-Allow-Methods: "'OPTIONS,PUT'"
+              gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+              gatewayresponse.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+          DEFAULT_4XX:
+            responseParameters:
+              gatewayresponse.header.Access-Control-Allow-Methods: "'OPTIONS,PUT'"
+              gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+              gatewayresponse.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+        x-amazon-apigateway-binary-media-types:
+        - "image/png"
+        - "image/jpg"
+        - "image/jpeg"
+      FailOnWarnings: true
+      Mode: overwrite
+
+  RestApiCFDeployment:
+    Type: AWS::ApiGateway::Deployment
+    DependsOn:
+      - RestApiCF
+    Properties:
+      RestApiId: !Ref RestApiCF
+      Description: 'Deployment of the RestApiCF'
+      StageName: !Ref StageName
+
+  RestApiCFUsagePlan:
+    Type: 'AWS::ApiGateway::UsagePlan'
+    DependsOn:
+      - RestApiCFDeployment
+    Properties:
+      ApiStages:
+        - ApiId: !Ref RestApiCF
+          Stage: !Ref StageName
+      Description: RestAPI CF usage plan
+      UsagePlanName: RestApicfup
+  
+  RestApiCFKey:
+    Type: AWS::ApiGateway::ApiKey
+    Properties:
+      Description: API Key for the Rest API created above
+      Enabled: true
+      Name: RestApiCFKey
+
+  RestApiCFUsagePlanKey:
+    Type: AWS::ApiGateway::UsagePlanKey
+    DependsOn:
+      - RestApiCFUsagePlan
+      - RestApiCFKey
+    Properties:
+      KeyId: !Ref RestApiCFKey
+      KeyType: API_KEY
+      UsagePlanId: !Ref RestApiCFUsagePlan
+
+Outputs:
+  MyStacksRegion:
+    Value: !Ref "AWS::Region"
+  WebsiteURL:
+    Value: !GetAtt 
+      - FrontEndBucket
+      - WebsiteURL
+    Description: Static website URL
