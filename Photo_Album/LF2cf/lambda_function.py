@@ -111,8 +111,8 @@ def find_photo_paths(key_list):
     service = 'es'
     credentials = boto3.Session().get_credentials()
     awsauth = AWS4Auth(credentials.access_key, credentials.secret_key, region, service, session_token=credentials.token)
-    # TODO: Change the domain endpoint
-    host = "https://search-photos-275s2jekaejxrizkwwlk6um4uq.us-east-1.es.amazonaws.com"
+    # photos-cf domain endpoint
+    host = "https://search-photos-cf-cf6u7zrblae3zhw6fbujdhjm24.us-east-1.es.amazonaws.com"
     index = "photos"
     datatype = "_search"
     url = f'{host}/{index}/{datatype}'
