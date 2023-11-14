@@ -55,7 +55,7 @@ def upload_to_es(object, id):
     credentials = boto3.Session().get_credentials()
     awsauth = AWS4Auth(credentials.access_key, credentials.secret_key, region, service, session_token=credentials.token)
     # photos-cf domain endpoint
-    host = "https://search-photos-cf-cf6u7zrblae3zhw6fbujdhjm24.us-east-1.es.amazonaws.com"
+    host = "search-photos-cf-cf6u7zrblae3zhw6fbujdhjm24.us-east-1.es.amazonaws.com"
     
     os_client = OpenSearch(hosts=[{ 'host': host, 'port': 443}],
                         http_auth=awsauth, 
