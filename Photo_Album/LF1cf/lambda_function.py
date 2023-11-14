@@ -64,7 +64,7 @@ def upload_to_es(object, id):
                         connection_class=RequestsHttpConnection)
 
     response = os_client.index(
-        index="photos",
+        index="photos-cf",
         body=object,
         id =id,
         refresh=True

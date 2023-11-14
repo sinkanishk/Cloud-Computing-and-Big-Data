@@ -44,7 +44,7 @@ Resources:
         Enabled: true
         InternalUserDatabaseEnabled: false
         MasterUserOptions:
-          MasterUserARN: 'arn:aws:iam::373948311114:role/service-role/LF12cfExecutionRole'
+          MasterUserARN: 'arn:aws:iam::373948311114:role/LF12cfExecutionRole'
       EncryptionAtRestOptions:
         Enabled: true
       DomainEndpointOptions:

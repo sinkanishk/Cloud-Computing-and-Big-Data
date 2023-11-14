@@ -18,6 +18,9 @@ function textSearch() {
     .then(response => response.json())
     .then(data => {
       console.log(data);
+      
+      document.getElementById('search_query').value = '';
+
       // Handle the case when no results are found
       if (data === 'No Results found') {
         var photosDiv = document.getElementById("photos_search_results");

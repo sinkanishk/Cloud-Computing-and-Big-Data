@@ -103,7 +103,7 @@ def build_es_query(objectKey):
  
 def find_photo_paths(key_list):
     
-    S3_BUCKET_NAME = "b2store"
+    S3_BUCKET_NAME = "b2store-cf"
     s3 = boto3.client('s3')
     
     
@@ -113,7 +113,7 @@ def find_photo_paths(key_list):
     awsauth = AWS4Auth(credentials.access_key, credentials.secret_key, region, service, session_token=credentials.token)
     # photos-cf domain endpoint
     host = "https://search-photos-cf-cf6u7zrblae3zhw6fbujdhjm24.us-east-1.es.amazonaws.com"
-    index = "photos"
+    index = "photos-cf"
     datatype = "_search"
     url = f'{host}/{index}/{datatype}'
     header = { "Content-Type": "application/json" }
