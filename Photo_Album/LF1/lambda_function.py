@@ -82,6 +82,12 @@ def lambda_handler(event, context):
         customLabels = s3_metadata(photo_name, bucket_name)
         newLabels = detect_labels(photo_name, bucket_name)
         customLabels.extend(newLabels)
+        pluraLabels = []
+        
+        for item in customLabels:
+            pluraLabels.append(item+"s")
+        
+        customLabels.extend(newLabels)
         
         upload_object = {
             "objectKey": photo_name,
