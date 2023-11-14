@@ -25,7 +25,8 @@ def detect_labels(photo, bucket):
     labels = []
     for label in response['Labels']:
         # print("Label: " + label['Name'], "   Confidence: " + str(label['Confidence']))
-        labels.append(label['Name'])
+        label_name = label['Name'].lower()
+        labels.append(label_name)
     
     return labels
         
@@ -41,6 +42,7 @@ def s3_metadata(photo, bucket):
         for idx, label in enumerate(customLabels):
             label = label.lstrip()
             label = label.rstrip()
+            label = label.lower()
             customLabels[idx] = label
     except:
         customLabels = []
@@ -82,6 +84,13 @@ def lambda_handler(event, context):
         customLabels = s3_metadata(photo_name, bucket_name)
         newLabels = detect_labels(photo_name, bucket_name)
         customLabels.extend(newLabels)
+
+        pluraLabels = []
+        
+        for item in customLabels:
+            pluraLabels.append(item + "s")
+        
+        customLabels.extend(pluraLabels)
         
         upload_object = {
             "objectKey": photo_name,

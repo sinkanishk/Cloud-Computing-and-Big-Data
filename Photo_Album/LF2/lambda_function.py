@@ -2,6 +2,7 @@ import json
 import logging
 import boto3
 import requests
+import random
 from requests_aws4auth import AWS4Auth
 
 
@@ -26,32 +27,41 @@ def print_dict_recursive(d, parent_keys="", indent=0):
             print("  " * indent + f"{current_key}: {value}")
 
 def lambda_handler(event, context):
-    print('event : ', event)
+    print('event : ', event, context)
     
     query = event["queryStringParameters"]['q']
     
     labels = get_labels_from_lex(query)
-    
+    img_paths = None
     if len(labels)>0:
         img_paths = find_photo_paths(labels)
         
-    if not img_paths:
+    if img_paths is None or len(img_paths)==0:
+        print("Sending 200 statusCode")
         return{
             'statusCode':200,
             "headers": {"Access-Control-Allow-Origin":"*"},
             'body': json.dumps('No Results found')
         }
-    else:    
-        return{
+    else:
+        print("Sending complete List")
+        response = {
             'statusCode': 200,
-            'headers': {"Access-Control-Allow-Origin":"*"},
-            'body': {
+            'headers': {
+                
+                "Access-Control-Allow-Origin":"*",
+                'Content-Type': 'application/json'
+            },
+            'body': json.dumps({
                 'imagePaths':img_paths,
                 'userQuery':query,
                 'labels': labels,
-            },
+            }),
             'isBase64Encoded': False
         }
+        
+        print(response)
+        return response
     
     
 def get_labels_from_lex(query):
@@ -63,7 +73,7 @@ def get_labels_from_lex(query):
         botId = BOT_ID, # MODIFY HERE
         botAliasId = BOT_ALIAS_ID, # MODIFY HERE
         localeId='en_US',
-        sessionId = 'sessionID3',
+        sessionId = str(random.randint(10**31, 10**32)),
         text = query)
     
     print_dict_recursive(response['interpretations'][0])
