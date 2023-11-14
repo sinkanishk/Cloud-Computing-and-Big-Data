@@ -2,6 +2,7 @@ import json
 import logging
 import boto3
 import requests
+import random
 from requests_aws4auth import AWS4Auth
 
 
@@ -72,7 +73,7 @@ def get_labels_from_lex(query):
         botId = BOT_ID, # MODIFY HERE
         botAliasId = BOT_ALIAS_ID, # MODIFY HERE
         localeId='en_US',
-        sessionId = 'sessionID3',
+        sessionId = str(random.randint(10**31, 10**32)),
         text = query)
     
     print_dict_recursive(response['interpretations'][0])

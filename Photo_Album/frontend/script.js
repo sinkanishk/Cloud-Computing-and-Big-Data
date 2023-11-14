@@ -37,8 +37,8 @@ function textSearch() {
         for (let i = 0; i < data.imagePaths.length; i++) {
           const photo_path = data.imagePaths[i];
 
-          const photoHtml = '<figure style="display:inline-block; margin:10px; width:calc(100%/3 - 20px)">' +
-            '<img src="' + `${photo_path}` + '" style="width:100%">' +
+          const photoHtml = '<figure style="display:inline-block; margin:10px; width:calc(50%/3 - 20px)">' +
+            '<img src="' + `${photo_path}` + '" style="width:50%">' +
             '<figcaption style="text-align:center">' + photo_path.split('/')[3].split('?')[0] + '</figcaption>' +
             '</figure>';
           photosDiv.innerHTML += photoHtml;
@@ -56,7 +56,7 @@ function voiceSearch() {
 
   // Set up event handlers for the speech recognition
   recognition.onstart = function () {
-    $micIcon.text('mic_off');
+    $micIcon.text('mic');
   };
 
   recognition.onresult = function (event) {
@@ -71,7 +71,7 @@ function voiceSearch() {
   };
 
   recognition.onend = function () {
-    $micIcon.text('mic');
+    $micIcon.text('mic_off');
   };
 
   // Start the speech recognition process
