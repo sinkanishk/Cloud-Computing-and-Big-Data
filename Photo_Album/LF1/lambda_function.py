@@ -87,7 +87,7 @@ def lambda_handler(event, context):
         for item in customLabels:
             pluraLabels.append(item+"s")
         
-        customLabels.extend(newLabels)
+        customLabels.extend(pluraLabels)
         
         upload_object = {
             "objectKey": photo_name,
