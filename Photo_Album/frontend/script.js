@@ -1,13 +1,7 @@
-const API_BASE_URL = 'https://cdip9yzyig.execute-api.us-east-1.amazonaws.com/deploy2';
+// Define the base URL for the API and specific endpoints
+const API_BASE_URL = 'https://mvpd1a3ui6.execute-api.us-east-1.amazonaws.com/deploycf';
 const SEARCH_ENDPOINT = '/search';
-const UPLOAD_ENDPOINT = '/upload/b2store/';
-
-// CodePipeline P2 works 
-
-// Variables for accessing the API Gateway endpoints
-// const API_BASE_URL = 'https://pktf9voz2i.execute-api.us-east-1.amazonaws.com/Prod';
-// const SEARCH_ENDPOINT = '/search';
-// const UPLOAD_ENDPOINT = '/upload/photo-storage-b2-cf/';
+const UPLOAD_ENDPOINT = '/upload/b2store-cf/';
 
 // Function to handle text search
 function textSearch() {
@@ -15,30 +9,36 @@ function textSearch() {
   const searchQuery = document.getElementById('search_query').value;
 
   // Make an HTTP GET request to the search endpoint with the search query as a parameter
-  fetch(API_BASE_URL + SEARCH_ENDPOINT + '?q=' + searchQuery)
+  fetch(API_BASE_URL + SEARCH_ENDPOINT + '?q=' + searchQuery, {
+    method: 'GET',
+    headers: {
+      "x-api-key": "RwcXCLQnIA5scrPKr6ZeJ9wkZaumPyie3ktxnNAv",
+    },
+  })
     .then(response => response.json())
     .then(data => {
       console.log(data);
+      // Handle the case when no results are found
       if (data === 'No Results found') {
         var photosDiv = document.getElementById("photos_search_results");
         photosDiv.innerHTML = "";
-
-        // Create a new HTML element to display the message
         const message = document.createElement('p');
         message.textContent = 'No photos found';
         photosDiv.appendChild(message);
-    } else {
+      } else {
+        // Display search results in the specified HTML element
         var photosDiv = document.getElementById("photos_search_results");
         photosDiv.innerHTML = "";
-        
+
+        // Iterate through the image paths and display each photo
         for (let i = 0; i < data.imagePaths.length; i++) {
-            const photo_path = data.imagePaths[i];
-        
-            const photoHtml = '<figure style="display:inline-block; margin:10px; width:calc(100%/3 - 20px)">' +
-                                '<img src="' + `${photo_path}` + '" style="width:100%">' +
-                                '<figcaption style="text-align:center">' + photo_path.split('/')[3].split('?')[0] + '</figcaption>' +
-                            '</figure>';
-            photosDiv.innerHTML += photoHtml;
+          const photo_path = data.imagePaths[i];
+
+          const photoHtml = '<figure style="display:inline-block; margin:10px; width:calc(100%/3 - 20px)">' +
+            '<img src="' + `${photo_path}` + '" style="width:100%">' +
+            '<figcaption style="text-align:center">' + photo_path.split('/')[3].split('?')[0] + '</figcaption>' +
+            '</figure>';
+          photosDiv.innerHTML += photoHtml;
         }
       }
     })
@@ -47,27 +47,31 @@ function textSearch() {
 
 // Function to perform a voice search
 function voiceSearch() {
+  // Access the mic icon and create a new speech recognition object
   const $micIcon = $('#mic_search');
   const recognition = new webkitSpeechRecognition();
 
-  recognition.onstart = function() {
+  // Set up event handlers for the speech recognition
+  recognition.onstart = function () {
     $micIcon.text('mic_off');
   };
 
-  recognition.onresult = function(event) {
+  recognition.onresult = function (event) {
+    // Get the transcript from the speech recognition result and perform a text search
     const query = event.results[0][0].transcript;
     $('#search_query').val(query);
     textSearch();
   };
 
-  recognition.onerror = function(event) {
+  recognition.onerror = function (event) {
     console.error(event.error);
   };
 
-  recognition.onend = function() {
+  recognition.onend = function () {
     $micIcon.text('mic');
   };
 
+  // Start the speech recognition process
   recognition.start();
 }
 
@@ -82,20 +86,21 @@ function uploadPhoto() {
   formData.append('file', uploadedFile);
   formData.append('labels', customLabels);
 
+  // Get the file name, type, and log them for debugging purposes
   const fileInput = document.getElementById('uploaded_file');
-  const fileName = fileInput.value.split('\\').pop(); 
+  const fileName = fileInput.value.split('\\').pop();
   const fileType = fileName.split('.').pop();
-  console.log(fileName); 
-  console.log('file type',fileType);
+  console.log(fileName);
+  console.log('file type', fileType);
   console.log('cusLab', customLabels);
-
 
   // Make an HTTP PUT request to the upload endpoint with the file and custom labels as parameters
   fetch(API_BASE_URL + UPLOAD_ENDPOINT + fileName, {
     method: 'PUT',
     headers: {
+      "x-amz-meta-customLabels": customLabels,
       "Content-Type": `image/${fileType}`,
-      "x-api-key": "ZC4gIfhTkH2vTWCegkEUU7PnSY3Xu1v66o4H3yD5"//"EJj1AAyQwB6kTf5PN6N079TIoWzxGbeJ9nQutCVY"
+      "x-api-key": "RwcXCLQnIA5scrPKr6ZeJ9wkZaumPyie3ktxnNAv"
     },
     body: uploadedFile
   })

@@ -1,0 +1,45 @@
+version: 0.2
+phases:
+  install:
+    runtime-versions:
+      python: 3.11
+    commands:
+      - cd Photo_Album
+      - echo "Installing dependencies..."
+      - pip install -r requirements.txt -t lib
+  build:
+    commands:
+      - echo "Zipping LF1cf package..."
+      - cd lib
+      - zip -r9 ../../LF1cf_package.zip .
+      - cd ..
+      - cd LF1cf
+      - zip -g ../../LF1cf_package.zip lambda_function.py
+      - cd ..
+      - echo "Zipping LF2cf package..."
+      - cd lib
+      - zip -r9 ../../LF2cf_package.zip .
+      - cd ..
+      - cd LF2cf
+      - zip -g ../../LF2cf_package.zip lambda_function.py
+      - cd ..
+      - echo "Zipping frontendcf code..."
+      - cd frontend
+      - zip -r9 ../../frontendcf_package.zip .
+      - cd ..
+      - cd ..
+  post_build:
+    commands:
+      - echo "Updating LF1cf Function..."
+      - aws lambda update-function-code --function-name LF1cf --zip-file fileb://LF1cf_package.zip
+      - echo "DONE!!"
+      - echo "Updating LF2cf Function..."
+      - aws lambda update-function-code --function-name LF2cf --zip-file fileb://LF2cf_package.zip
+      - echo "DONE!!"
+      - echo "Updating files in myphotoalbumccbd-cf S3..."
+      - unzip frontendcf_package.zip -d ./temp/
+      - aws s3 cp ./temp/ s3://myphotoalbumccbd-cf/ --recursive
+      - echo "DONE!!"
+artifacts:
+  files:
+    - '**/*'

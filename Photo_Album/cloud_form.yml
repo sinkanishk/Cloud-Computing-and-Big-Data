@@ -17,46 +17,43 @@ Parameters:
     Type: String
     Default: deploycf
 Resources:
-  # OpenSearch is done, but only create at the end
-  # OpenSearchStorage:
-  #   Type: AWS::OpenSearchService::Domain
-  #   Properties:
-  #     DomainName: !Ref OpenSearchName
-  #     AccessPolicies:
-  #       Version: "2012-10-17"
-  #       Statement:
-  #         - Effect: "Allow"
-  #           Principal:
-  #             AWS: "*"
-  #           Action: "es:*"
-  #           Resource: "arn:aws:es:us-east-1:373948311114:domain/photos-cf/*"
-  #     ClusterConfig:
-  #       InstanceCount: 1
-  #       InstanceType: t3.small.search
-  #     EBSOptions:
-  #       EBSEnabled: true
-  #       VolumeSize: 10
-  #       VolumeType: gp3
-  #       Iops: 3000
-  #     NodeToNodeEncryptionOptions:
-  #       Enabled: true
-  #     AdvancedSecurityOptions:
-  #       Enabled: true
-  #       InternalUserDatabaseEnabled: false
-  #       MasterUserOptions:
-  #         MasterUserARN: 
-  #           - !Join ['', ['arn:aws:iam::373948311114:role/service-role/', !Ref LF1cfFunctionRole]]
-  #           - !Join ['', ['arn:aws:iam::373948311114:role/service-role/', !Ref LF2cfFunctionRole]]
-  #     EncryptionAtRestOptions:
-  #       Enabled: true
-  #     DomainEndpointOptions:
-  #       EnforceHTTPS: true
+  # OpenSearch
+  OpenSearchStorage:
+    Type: AWS::OpenSearchService::Domain
+    Properties:
+      DomainName: !Ref OpenSearchName
+      AccessPolicies:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              AWS: "*"
+            Action: "es:*"
+            Resource: "arn:aws:es:us-east-1:373948311114:domain/photos-cf/*"
+      ClusterConfig:
+        InstanceCount: 1
+        InstanceType: t3.small.search
+      EBSOptions:
+        EBSEnabled: true
+        VolumeSize: 10
+        VolumeType: gp3
+        Iops: 3000
+      NodeToNodeEncryptionOptions:
+        Enabled: true
+      AdvancedSecurityOptions:
+        Enabled: true
+        InternalUserDatabaseEnabled: false
+        MasterUserOptions:
+          MasterUserARN: 'arn:aws:iam::373948311114:role/service-role/LF12cfExecutionRole'
+      EncryptionAtRestOptions:
+        Enabled: true
+      DomainEndpointOptions:
+        EnforceHTTPS: true
 
   FrontEndBucket:
     Type: 'AWS::S3::Bucket'
     Properties:
       BucketName: myphotoalbumccbd-cf
-      # AccessControl: PublicRead
       PublicAccessBlockConfiguration:
           BlockPublicAcls: false
           BlockPublicPolicy: false
@@ -91,30 +88,10 @@ Resources:
           - Event: 's3:ObjectCreated:*'
             Function: !GetAtt LF1cfFunction.Arn
 
-  LF1cfFunction:
-    Type: AWS::Lambda::Function
-    Properties:
-      Handler: lambda_function.lambda_handler
-      Role: !GetAtt LF1cfFunctionRole.Arn
-      FunctionName: LF1cf
-      Runtime: python3.11
-      Timeout: 30
-      Code:
-        S3Bucket: lambdas-cf
-        S3Key: LF1.zip
-
-  LF1cfInvokeLambdaPermission:
-    Type: AWS::Lambda::Permission
-    Properties:
-      Action: lambda:InvokeFunction
-      FunctionName: !Ref LF1cfFunction
-      Principal: s3.amazonaws.com
-      SourceArn: !Sub arn:aws:s3:::${BackendBucketName}
-
-  LF1cfFunctionRole:
+  LF12cfFunctionRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: LF1cfExecutionRole
+      RoleName: LF12cfExecutionRole
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
         Statement:
@@ -123,53 +100,7 @@ Resources:
               Service: lambda.amazonaws.com
             Action: sts:AssumeRole
       Policies:
-        - PolicyName: LF1cfAccess
-          PolicyDocument:
-            Version: "2012-10-17"
-            Statement:
-              - Effect: Allow
-                Action:
-                  - s3:*
-                  - "logs:CreateLogGroup"
-                  - "logs:CreateLogStream"
-                  - "logs:PutLogEvents"
-                  - "rekognition:*"
-                  - 'es:*'
-                Resource: "*"    
-
-  LF2cfFunction:
-    Type: AWS::Lambda::Function
-    Properties:
-      Handler: lambda_function.lambda_handler
-      Role: !GetAtt LF2cfFunctionRole.Arn
-      FunctionName: LF2cf
-      Runtime: python3.11
-      Timeout: 30
-      Code:
-        S3Bucket: lambdas-cf
-        S3Key: LF2.zip
-
-  LF2cfInvokeLexLambdaPermission:
-    Type: AWS::Lambda::Permission
-    Properties:
-      Action: lambda:InvokeFunction
-      FunctionName: !Ref LF2cfFunction
-      Principal: lex.amazonaws.com
-      SourceArn: !Sub "arn:aws:lex:us-east-1:373948311114:bot/searchObjects/${BotID}/${BotAliasID}"
-
-  LF2cfFunctionRole:
-    Type: AWS::IAM::Role
-    Properties:
-      RoleName: LF2cfExecutionRole
-      AssumeRolePolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service: lambda.amazonaws.com
-            Action: sts:AssumeRole
-      Policies:
-        - PolicyName: LF2cfAccess
+        - PolicyName: LF12cfAccess
           PolicyDocument:
             Version: "2012-10-17"
             Statement:
@@ -184,6 +115,71 @@ Resources:
                   - "osis:*"
                   - "lex:*"
                 Resource: "*"
+
+  LF1cfFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Handler: lambda_function.lambda_handler
+      Role: !GetAtt LF12cfFunctionRole.Arn
+      FunctionName: LF1cf
+      Runtime: python3.11
+      Timeout: 30
+      Code:
+        ZipFile: >
+          import json
+
+          def lambda_handler(event, context):
+              # TODO implement
+              return {
+                  'statusCode': 200,
+                  'body': json.dumps('Hello from Lambda!')
+              }
+
+  LF1cfInvokeLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref LF1cfFunction
+      Principal: s3.amazonaws.com
+      SourceArn: !Sub arn:aws:s3:::${BackendBucketName}    
+
+  LF2cfFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Handler: lambda_function.lambda_handler
+      Role: !GetAtt LF12cfFunctionRole.Arn
+      FunctionName: LF2cf
+      Runtime: python3.11
+      Timeout: 30
+      Code:
+        ZipFile: >
+          import json
+          
+          def lambda_handler(event, context):
+              # TODO implement
+              return {
+                  'statusCode': 200,
+                  'body': json.dumps('Hello from Lambda!')
+              }
+
+  LF2cfInvokeLexLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref LF2cfFunction
+      Principal: lex.amazonaws.com
+      SourceArn: !Sub "arn:aws:lex:us-east-1:373948311114:bot/searchObjects/${BotID}/${BotAliasID}"
+
+  LF2cfAPIPermission:
+    Type: "AWS::Lambda::Permission"
+    DependsOn:
+    - RestApiCF
+    - LF2cfFunction
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref LF2cfFunction
+      Principal: apigateway.amazonaws.com
+
 
   RestApiCFRole:
     Type: AWS::IAM::Role
@@ -224,7 +220,7 @@ Resources:
           description: "AI Photo Search application, built during the Cloud and Big Data course\
             \ at Columbia University."
           version: "1.0.0"
-          title: "AI Photo Search CF with UP"
+          title: "AI Photo Search CF"
         host: "cdip9yzyig.execute-api.us-east-1.amazonaws.com"
         basePath: "/v1cf"
         schemes:
@@ -383,7 +379,7 @@ Resources:
                     statusCode: "200"
                     responseParameters:
                       method.response.header.Access-Control-Allow-Methods: "'OPTIONS,PUT'"
-                      method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+                      method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-Meta-CustomLabels'"
                       method.response.header.Access-Control-Allow-Origin: "'*'"
                 requestTemplates:
                   application/json: "{\"statusCode\": 200}"
@@ -447,6 +443,15 @@ Resources:
       RestApiId: !Ref RestApiCF
       Description: 'Deployment of the RestApiCF'
       StageName: !Ref StageName
+      StageDescription:
+        Description: Stage - DeployCF
+        LoggingLevel: INFO
+        MetricsEnabled: True
+        MethodSettings:
+          - ResourcePath: "/*"
+            HttpMethod: "*"
+            LoggingLevel: INFO
+            MetricsEnabled: True
 
   RestApiCFUsagePlan:
     Type: 'AWS::ApiGateway::UsagePlan'
@@ -462,7 +467,7 @@ Resources:
   RestApiCFKey:
     Type: AWS::ApiGateway::ApiKey
     Properties:
-      Description: API Key for the Rest API created above
+      Description: API Key for the Rest API created using CF
       Enabled: true
       Name: RestApiCFKey
 

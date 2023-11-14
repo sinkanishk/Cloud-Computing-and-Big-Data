@@ -26,32 +26,41 @@ def print_dict_recursive(d, parent_keys="", indent=0):
             print("  " * indent + f"{current_key}: {value}")
 
 def lambda_handler(event, context):
-    print('event : ', event)
+    print('event : ', event, context)
     
     query = event["queryStringParameters"]['q']
     
     labels = get_labels_from_lex(query)
-    
+    img_paths = None
     if len(labels)>0:
         img_paths = find_photo_paths(labels)
         
-    if not img_paths:
+    if img_paths is None or len(img_paths)==0:
+        print("Sending 200 statusCode")
         return{
             'statusCode':200,
             "headers": {"Access-Control-Allow-Origin":"*"},
             'body': json.dumps('No Results found')
         }
-    else:    
-        return{
+    else:
+        print("Sending complete List")
+        response = {
             'statusCode': 200,
-            'headers': {"Access-Control-Allow-Origin":"*"},
-            'body': {
+            'headers': {
+                
+                "Access-Control-Allow-Origin":"*",
+                'Content-Type': 'application/json'
+            },
+            'body': json.dumps({
                 'imagePaths':img_paths,
                 'userQuery':query,
                 'labels': labels,
-            },
+            }),
             'isBase64Encoded': False
         }
+        
+        print(response)
+        return response
     
     
 def get_labels_from_lex(query):
@@ -102,7 +111,7 @@ def find_photo_paths(key_list):
     service = 'es'
     credentials = boto3.Session().get_credentials()
     awsauth = AWS4Auth(credentials.access_key, credentials.secret_key, region, service, session_token=credentials.token)
-
+    # TODO: Change the domain endpoint
     host = "https://search-photos-275s2jekaejxrizkwwlk6um4uq.us-east-1.es.amazonaws.com"
     index = "photos"
     datatype = "_search"
