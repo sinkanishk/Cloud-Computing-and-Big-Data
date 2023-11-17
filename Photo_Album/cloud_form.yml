@@ -150,7 +150,7 @@ Resources:
       Role: !GetAtt LF12cfFunctionRole.Arn
       FunctionName: LF2cf
       Runtime: python3.11
-      Timeout: 30
+      Timeout: 300
       Code:
         ZipFile: >
           import json
