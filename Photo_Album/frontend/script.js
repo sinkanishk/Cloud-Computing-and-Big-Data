@@ -1,5 +1,5 @@
 // Define the base URL for the API and specific endpoints
-const API_BASE_URL = 'https://mvpd1a3ui6.execute-api.us-east-1.amazonaws.com/deploycf';
+const API_BASE_URL = 'https://le78hsl0c8.execute-api.us-east-1.amazonaws.com/deploycf';
 const SEARCH_ENDPOINT = '/search';
 const UPLOAD_ENDPOINT = '/upload/b2store-cf/';
 
@@ -12,7 +12,7 @@ function textSearch() {
   fetch(API_BASE_URL + SEARCH_ENDPOINT + '?q=' + searchQuery, {
     method: 'GET',
     headers: {
-      "x-api-key": "RwcXCLQnIA5scrPKr6ZeJ9wkZaumPyie3ktxnNAv",
+      "x-api-key": "ppvjpo2xcl95ZKQZiWjeb7LisoQuAAiC80dGwzMt",
     },
   })
     .then(response => response.json())
@@ -103,7 +103,7 @@ function uploadPhoto() {
     headers: {
       "x-amz-meta-customLabels": customLabels,
       "Content-Type": `image/${fileType}`,
-      "x-api-key": "RwcXCLQnIA5scrPKr6ZeJ9wkZaumPyie3ktxnNAv"
+      "x-api-key": "ppvjpo2xcl95ZKQZiWjeb7LisoQuAAiC80dGwzMt"
     },
     body: uploadedFile
   })
