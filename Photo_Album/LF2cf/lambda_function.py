@@ -27,7 +27,7 @@ def print_dict_recursive(d, parent_keys="", indent=0):
             print("  " * indent + f"{current_key}: {value}")
 
 def lambda_handler(event, context):
-    print('event : ', event, context)
+    # print('event : ', event, context)
     
     query = event["queryStringParameters"]['q']
     
