@@ -16,6 +16,6 @@ spec:
     spec:
       containers:
       - name: flask-app-container
-        image: homelanderstrikes/myflaskapp:latest  # Replace with your Docker Hub repository information
+        image: homelanderstrikes/myflaskapp:v1  # Replace with your Docker Hub repository information
         ports:
         - containerPort: 80

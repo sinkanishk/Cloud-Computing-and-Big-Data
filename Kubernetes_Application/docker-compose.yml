@@ -3,7 +3,7 @@ version: '3'
 services:
   # Flask App Service
   flask-app:
-    image: myflaskapp:latest  # Use the name and tag you specified during the Docker image build
+    image: myflaskapp:v1  # Use the name and tag you specified during the Docker image build
     ports:
       - "5000:80"  # Map port 80 inside the container to port 5000 on the host
     depends_on:

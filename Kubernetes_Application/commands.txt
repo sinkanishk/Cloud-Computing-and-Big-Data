@@ -1,0 +1,23 @@
+# Build the image using Dockerfile
+docker build -t myflaskapp:v1 .
+
+# Run the containers
+docker-compose up
+
+# Stop and remove the containers
+docker-compose down
+
+# Push the image to DockerHub
+
+docker tag myflaskapp:v1 <your-dockerhub-username>/<repository-name>:v1
+docker push <your-dockerhub-username>/<repository-name>:v1
+
+# Flask app and MongoDB deployment
+kubectl apply -f flask-app-dep.yaml
+kubectl apply -f mongodb-dep.yaml
+
+# Flask app and MongoDB services
+kubectl apply -f flask-app-service.yaml
+kubectl apply -f mongodb-service.yaml
+
+
