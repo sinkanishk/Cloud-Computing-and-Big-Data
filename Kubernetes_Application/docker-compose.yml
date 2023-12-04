@@ -5,7 +5,7 @@ services:
   flask-app:
     image: myflaskapp:l1  # Use the name and tag you specified during the Docker image build
     ports:
-      - "5000:5000"  # Map port 80 inside the container to port 5000 on the host
+      - "5000:5000"  # Map port 5000 inside the container to port 5000 on the host
     depends_on:
       - mongodb  # Wait for the MongoDB service to be ready before starting the Flask app
     environment:
