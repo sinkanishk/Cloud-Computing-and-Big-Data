@@ -1,20 +1,23 @@
 # Use an official Python runtime as a parent image
 FROM python:3.9
 
-# Set the working directory to /app
+# Copy the content of the project directory to the working directory
+COPY . /app
+
+# Set the working directory in the container
 WORKDIR /app
 
-# Copy the current directory contents into the container at /app
-COPY ./starter_code/ /app
+# Install any dependencies
+RUN pip install -r requirements.txt
 
-# Install any needed packages specified in requirements.txt
-RUN pip install --trusted-host pypi.python.org -r requirements.txt
+# Specify the Flask environment port
+ENV PORT 5000
 
-# Make port 80 available to the world outside this container
-EXPOSE 80
+# By default, listen on port 5000
+EXPOSE 5000
 
-# Define environment variable
-ENV NAME World
+# Set the directive to specify the executable that will run when the container is initiated
+ENTRYPOINT [ "python" ]
 
-# Run app.py when the container launches
-CMD ["python", "app.py"]
+# Specify the command to run on container start
+CMD [ "app.py" ]

@@ -1,8 +1,8 @@
 # Build the image using Dockerfile
-docker build -t myflaskapp:v1 .
+docker build -t myflaskapp:l1 .
 
 # Run the containers
-docker-compose up
+docker-compose up --build
 
 # Stop and remove the containers
 docker-compose down
