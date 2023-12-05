@@ -21,3 +21,29 @@ kubectl apply -f flask-app-service.yaml
 kubectl apply -f mongodb-service.yaml
 
 
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ PART - 5 $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+
+# Replication Controller Feature
+kubectl get deployments
+kubectl get pods
+
+## Delete one of your pods
+kubectl delete pod <pod-name>
+kubectl get pods
+
+## Change the replicas in dep.yaml
+kubectl apply -f flask-app-dep.yaml
+kubectl get deployments
+kubectl get pods
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ PART - 6 $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+
+docker build -t myflaskapp:v2 .
+docker tag myflaskapp:v2 <your-dockerhub-username>/<repository-name>:v2
+docker push <your-dockerhub-username>/<repository-name>:v2
+
+kubectl apply -f flask-app-deployment.yaml
+kubectl rollout status deployment/flask-app-deployment
+
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ PART - 7 $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
