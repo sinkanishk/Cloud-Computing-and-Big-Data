@@ -5,7 +5,7 @@ metadata:
   labels:
     app: flask-app
 spec:
-  replicas: 2  # Adjust the number of replicas as needed
+  replicas: 3  # Adjust the number of replicas as needed
   selector:
     matchLabels:
       app: flask-app
@@ -16,6 +16,10 @@ spec:
     spec:
       containers:
       - name: flask-app-container
-        image: homelanderstrikes/myflaskapp:v1  # Replace with your Docker Hub repository information
+        image: homelanderstrikes/todoapp:v1  # Replace with your Docker Hub repository information
         ports:
         - containerPort: 5000
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1

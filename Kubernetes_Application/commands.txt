@@ -1,5 +1,5 @@
 # Build the image using Dockerfile
-docker build -t myflaskapp:l1 .
+docker build -t todoapp:v1 .
 
 # Run the containers
 docker-compose up --build
@@ -9,7 +9,7 @@ docker-compose down
 
 # Push the image to DockerHub
 
-docker tag myflaskapp:v1 <your-dockerhub-username>/<repository-name>:v1
+docker tag todoapp:v1 <your-dockerhub-username>/<repository-name>:v1
 docker push <your-dockerhub-username>/<repository-name>:v1
 
 # Flask app and MongoDB deployment
