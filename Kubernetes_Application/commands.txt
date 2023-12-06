@@ -27,8 +27,12 @@ kubectl apply -f mongodb-service.yaml
 kubectl apply -f dashboard-adminuser.yaml
 kubectl apply -f clusterolebinding.yaml
 
+# Generate Bearer token
+kubectl -n kubernetes-dashboard create token admin-user
+
 kubectl proxy
 # Access at http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/#/deployment/default/flask-app-deployment?namespace=default
+
 
 $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ PART - 4 $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 eksctl create cluster && kubectl apply -f flask-app-dep.yaml && kubectl apply -f mongodb-dep.yaml && kubectl apply -f flask-app-service.yaml && kubectl apply -f mongodb-service.yaml
