@@ -1,3 +1,5 @@
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ PART - 2 $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+
 # Build the image using Dockerfile
 docker build -t todoapp:v1 .
 
@@ -8,9 +10,10 @@ docker-compose up --build
 docker-compose down
 
 # Push the image to DockerHub
-
 docker tag todoapp:v1 <your-dockerhub-username>/<repository-name>:v1
 docker push <your-dockerhub-username>/<repository-name>:v1
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ PART - 3 $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
 # Flask app and MongoDB deployment
 kubectl apply -f flask-app-dep.yaml
@@ -19,6 +22,16 @@ kubectl apply -f mongodb-dep.yaml
 # Flask app and MongoDB services
 kubectl apply -f flask-app-service.yaml
 kubectl apply -f mongodb-service.yaml
+
+# Creating Kubernetes dashboard
+kubectl apply -f dashboard-adminuser.yaml
+kubectl apply -f clusterolebinding.yaml
+
+kubectl proxy
+# Access at http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/#/deployment/default/flask-app-deployment?namespace=default
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ PART - 4 $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+eksctl create cluster && kubectl apply -f flask-app-dep.yaml && kubectl apply -f mongodb-dep.yaml && kubectl apply -f flask-app-service.yaml && kubectl apply -f mongodb-service.yaml
 
 
 $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ PART - 5 $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$

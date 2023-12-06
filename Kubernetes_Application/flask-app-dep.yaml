@@ -16,9 +16,27 @@ spec:
     spec:
       containers:
       - name: flask-app-container
-        image: homelanderstrikes/todoapp:v1  # Replace with your Docker Hub repository information
+        image: homelanderstrikes/todoapp:p7_3  # Replace with your Docker Hub repository information
         ports:
         - containerPort: 5000
+        env:
+            - name: MONGO_HOST
+              value: "mongodb-service"
+        imagePullPolicy: Always
+        livenessProbe:
+          httpGet:
+            path: /live
+            port: 5000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          failureThreshold: 2
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 5000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          failureThreshold: 2
   strategy:
     rollingUpdate:
       maxSurge: 1

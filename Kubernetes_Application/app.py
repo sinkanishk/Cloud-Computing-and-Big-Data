@@ -16,10 +16,37 @@ app = Flask(__name__)
 title = "TODO with Flask"
 heading = "ToDo Reminder"
 
+health_status = 200
+
 def redirect_url():
 	return request.args.get('next') or \
 		request.referrer or \
 		url_for('index')
+
+
+@app.route("/health")
+def health():
+    """
+    Endpoint for Kubernetes readinessProbe.
+    Returns status code 200 if the application is healthy.
+    """
+    return "", health_status
+
+
+@app.route("/live")
+def live():
+    """
+    Another endpoint for Kubernetes livenessProbe.
+    Returns status code 200 if the application is alive and healthy.
+    """
+    return "", health_status
+
+@app.route("/crash")
+def crash():
+    # Intentional error to simulate a failure
+	global health_status
+	health_status = 500
+	return "", health_status
 
 @app.route("/list")
 def lists ():
