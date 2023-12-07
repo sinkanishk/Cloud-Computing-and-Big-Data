@@ -4,6 +4,10 @@ metadata:
   name: flask-app-deployment
   labels:
     app: flask-app
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/path: "/metrics"
+    prometheus.io/port: "5000"  # Replace with your app's port
 spec:
   replicas: 3  # Adjust the number of replicas as needed
   selector:
