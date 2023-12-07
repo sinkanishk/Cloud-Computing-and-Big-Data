@@ -12,13 +12,14 @@ data:
       rules:
       - alert: FlaskAppLivenessProbeFailed
         expr: up == 0
+        for: 5m
         labels:
           severity: critical
         annotations:
           summary: "Flask App liveness probe failed"
 
       - alert: FlaskAppReadinessProbeFailed
-        expr: flask_app_health_status == 0
+        expr: up == 0
         labels:
           severity: critical
         annotations:
@@ -31,6 +32,14 @@ data:
           severity: critical
         annotations:
           summary: "High Memory Usage"
+      
+      - alert: Pod Restart Alert
+        expr: kube_pod_container_status_restarts_total > 3
+        for: 15s
+        labels:
+          severity: critical
+        annotations:
+          summary: "Pod restarts exceeded threshold"
   prometheus.yml: |-
     global:
       scrape_interval: 5s
