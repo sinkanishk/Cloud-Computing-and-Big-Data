@@ -7,7 +7,7 @@ data:
   config.yml: |-
     global:
       resolve_timeout: 15s
-      slack_api_url: 'https://hooks.slack.com/services/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'
+      slack_api_url: 'https://hooks.slack.com/services/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'
     templates:
     - '/etc/alertmanager/*.tmpl'
     route:
