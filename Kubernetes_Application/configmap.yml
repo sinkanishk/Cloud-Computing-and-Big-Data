@@ -10,40 +10,17 @@ data:
     groups:
     - name: flask-app
       rules:
-      - alert: FlaskAppLivenessProbeFailed
-        expr: up == 0
-        for: 5m
-        labels:
-          severity: critical
-        annotations:
-          summary: "Flask App liveness probe failed"
-
-      - alert: FlaskAppReadinessProbeFailed
-        expr: up == 0
-        labels:
-          severity: critical
-        annotations:
-          summary: "Flask App readiness probe failed"
-      
-      - alert: High Pod Memory
-        expr: sum(container_memory_usage_bytes) > 1
-        for: 5s
-        labels:
-          severity: critical
-        annotations:
-          summary: "High Memory Usage"
-      
       - alert: Pod Restart Alert
-        expr: kube_pod_container_status_restarts_total > 3
-        for: 15s
+        expr: kube_pod_container_status_restarts_total > 2
+        for: 30s
         labels:
           severity: critical
         annotations:
           summary: "Pod restarts exceeded threshold"
   prometheus.yml: |-
     global:
-      scrape_interval: 5s
-      evaluation_interval: 5s
+      scrape_interval: 30s
+      evaluation_interval: 30s
     rule_files:
       - /etc/prometheus/prometheus.rules
     alerting:
